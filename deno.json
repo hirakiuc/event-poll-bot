@@ -1,0 +1,11 @@
+{
+  "lint": {
+    "files": {
+      "include": ["./*.ts", "src/"]
+    },
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": ["no-explicit-any"]
+    }
+  }
+}
