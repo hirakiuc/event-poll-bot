@@ -2,7 +2,7 @@ import { Application, Context, Router } from "./deps.ts";
 import { validateRequest } from "./src/handler/mod.ts";
 import { Logger as logger } from "./src/logger/mod.ts";
 
-import { access_logging } from "./src/oka/middleware/mod.ts";
+import { access_logging } from "./src/oak/middleware/mod.ts";
 
 const app = new Application();
 
