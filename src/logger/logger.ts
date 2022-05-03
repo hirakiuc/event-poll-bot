@@ -15,7 +15,14 @@ enum Severity {
 }
 
 type Payload = {
-  [key: string]: string | number | boolean | null | Payload[] | Payload;
+  [key: string]:
+    | string
+    | string[]
+    | number
+    | boolean
+    | null
+    | Payload
+    | Payload[];
 };
 
 class Logger {
