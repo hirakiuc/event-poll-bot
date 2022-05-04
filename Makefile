@@ -16,6 +16,9 @@ lint:
 cache:
 	deno cache -c ./deno.json ${SRCS}
 
+docs:
+	deno doc -c ./deno.json ${SRCS}
+
 run:
-	deno run --allow-net mod.ts
+	deno run --allow-net --allow-env mod.ts
 .PHONY: run
