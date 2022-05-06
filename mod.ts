@@ -1,38 +1,42 @@
-import { Application, Context, Router } from "./deps.ts";
-import { validateRequest } from "./src/handler/mod.ts";
-import { Logger as logger } from "./src/logger/mod.ts";
+import { createBot, sendMessage, startBot } from "./deps.ts";
 
-import { access_logging } from "./src/oak/middleware/mod.ts";
+import { Logger } from "./src/logger/mod.ts";
+import { loadConfig } from "./src/config/mod.ts";
 
-const app = new Application();
+import type { Bot, Message } from "./deps.ts";
 
-// Logging
-app.use(access_logging);
+const logger = new Logger();
 
-const publicKey = Deno.env.get("DISCORD_PUBLIC_KEY") as string;
-if (!publicKey) {
-  const err = new Error(
-    "Missing discord public key from environment variables.",
-  );
-
+const { config, err } = loadConfig();
+if (err) {
   logger.error({
-    message: err.message,
-  }, err);
+    message: "failed to load config from environment variables.",
+    error: logger.convertErr(err),
+  });
   Deno.exit(1);
 }
 
-app.use(validateRequest(publicKey));
+const bot = createBot({
+  token: config.discordToken,
+  intents: ["Guilds", "GuildMessages"],
+  botId: config.discordBotId,
+  events: {
+    ready() {
+      logger.info("Successfully connected to gateway");
+    },
+    messageCreate(bot: Bot, message: Message) {
+      logger.debug({ message });
 
-const router = new Router();
-router
-  .get("/", (context: Context) => {
-    context.response.body = "Hello World!";
-  })
-  .get("/reload", (context: Context) => {
-    context.response.body = [1, 2];
-  });
+      // Process the message with your command handler here
+      if (message.content == "Hello") {
+        sendMessage(bot, message.channelId, {
+          content: "Hi!",
+        });
+      } else {
+        console.log("Ignore it.");
+      }
+    },
+  },
+});
 
-app.use(router.routes());
-app.use(router.allowedMethods());
-
-await app.listen({ port: 8000 });
+await startBot(bot);
