@@ -15,10 +15,18 @@ lint:
 
 cache:
 	deno cache -c ./deno.json ${SRCS}
+.PHONY: cache
 
 docs:
 	deno doc -c ./deno.json ${SRCS}
+.PHONY: docs
 
+# NOTE: Use this task only for building your local container image.
+build:
+	docker build -t hirakiuc/event-poll-bot:latest --platform linux/amd64 .
+.PHONY: build
+
+# NOTE: Use this task only for running this app locally.
 run:
-	deno run --allow-net --allow-env mod.ts
+	docker run --env-file ./env.list --platform linux/amd64 hirakiuc/event-poll-bot:latest
 .PHONY: run
