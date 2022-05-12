@@ -22,7 +22,7 @@ const bot = createBot({
   botId: config.discordBotId,
   events: {
     ready() {
-      logger.info("Successfully connected to gateway");
+      logger.info("Successfully connected to Discord!");
     },
     messageCreate(bot: Bot, message: Message) {
       logger.debug({ message });
