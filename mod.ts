@@ -1,20 +1,20 @@
 import { createBot, sendMessage, startBot } from "./deps.ts";
 
-import { Logger } from "./src/logger/mod.ts";
+import { createLogger } from "./src/logger/mod.ts";
 import { loadConfig } from "./src/config/mod.ts";
 
 import type { Bot, Message } from "./deps.ts";
 
-const logger = new Logger();
+// Create logger instance with the default log level.
+const logger = createLogger();
 
 const { config, err } = loadConfig();
 if (err) {
-  logger.error({
-    message: "failed to load config from environment variables.",
-    error: logger.convertErr(err),
-  });
+  logger.error("failed to load config from environment variables.", err);
   Deno.exit(1);
 }
+// Update the severity of the logging.
+logger.setSeverity(config.logLevel);
 
 const bot = createBot({
   token: config.discordToken,
