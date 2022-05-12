@@ -1,5 +1,6 @@
 const KeyDiscordToken = "DISCORD_TOKEN";
 const KeyDiscordBotId = "DISCORD_BOT_ID";
+const KeyLogLevel = "LOG_LEVEL";
 
 // https://www.typescriptlang.org/docs/handbook/2/classes.html#index-signatures
 class ConfigMap {
@@ -17,6 +18,7 @@ class Config {
     const keys = [
       KeyDiscordToken,
       KeyDiscordBotId,
+      KeyLogLevel,
     ];
 
     for (const key of keys) {
@@ -38,6 +40,11 @@ class Config {
     const v = this.map[KeyDiscordBotId];
     const str = (v) ? v : "";
     return BigInt(str);
+  }
+
+  get logLevel(): string {
+    const v = this.map[KeyLogLevel];
+    return (v) ? v : "DEBUG";
   }
 
   private loadEnvVar(key: string): { value: string; err?: Error } {

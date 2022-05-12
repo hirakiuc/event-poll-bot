@@ -6,13 +6,46 @@
 // https://deno.land/std/log
 
 // https://zenn.dev/moga/articles/cloudrun-structured-log
-enum Severity {
-  DEBUG = "DEBUG",
-  INFO = "INFO",
-  WARNING = "WARNING",
-  ERROR = "ERROR",
-  ALERT = "ALERT",
-}
+
+const Severity = {
+  DEBUG: "DEBUG",
+  INFO: "INFO",
+  WARNING: "WARNING",
+  ERROR: "ERROR",
+  ALERT: "ALERT",
+};
+
+// Type definition of the Severity (each string value of the property of the Severity constant)
+type Severity = typeof Severity[keyof typeof Severity];
+
+const SeverityValue = {
+  NONE: 0,
+  DEBUG: 1,
+  INFO: 2,
+  WARNING: 3,
+  ERROR: 4,
+  ALERT: 5,
+};
+
+// Type definition of the SeverityValue (each string value of the property of the SeverityValue constant)
+type SeverityValue = typeof SeverityValue[keyof typeof SeverityValue];
+
+const severityToValue = (severity: Severity): SeverityValue => {
+  switch (severity) {
+    case Severity.DEBUG:
+      return SeverityValue.DEBUG;
+    case Severity.INFO:
+      return SeverityValue.INFO;
+    case Severity.WARNING:
+      return SeverityValue.WARNING;
+    case Severity.ERROR:
+      return SeverityValue.ERROR;
+    case Severity.ALERT:
+      return SeverityValue.ALERT;
+    default:
+      return SeverityValue.NONE;
+  }
+};
 
 const replacer = (_key: unknown, value: unknown): unknown => {
   switch (typeof value) {
@@ -24,10 +57,24 @@ const replacer = (_key: unknown, value: unknown): unknown => {
 };
 
 class Logger {
+  private severityValue: SeverityValue;
+
+  constructor(sev: Severity) {
+    this.severityValue = severityToValue(sev);
+  }
+
+  setSeverity(sev: Severity): void {
+    this.severityValue = severityToValue(sev);
+  }
+
   // debug methods
   debug(msg: string): void;
   debug(...payloads: Record<string, unknown>[]): void;
   debug(payload: unknown): void {
+    if (!this.shouldLog(Severity.DEBUG)) {
+      return;
+    }
+
     this.log(Severity.DEBUG, payload);
   }
 
@@ -35,6 +82,10 @@ class Logger {
   info(msg: string): void;
   info(...payloads: Record<string, unknown>[]): void;
   info(payload: unknown): void {
+    if (!this.shouldLog(Severity.INFO)) {
+      return;
+    }
+
     this.log(Severity.INFO, payload);
   }
 
@@ -42,6 +93,10 @@ class Logger {
   warn(msg: string): void;
   warn(...payloads: Record<string, unknown>[]): void;
   warn(payload: unknown): void {
+    if (!this.shouldLog(Severity.WARNING)) {
+      return;
+    }
+
     this.log(Severity.WARNING, payload);
   }
 
@@ -49,13 +104,22 @@ class Logger {
   error(payload: string, err?: Error): void;
   error(...payload: Record<string, unknown>[]): void;
   error(payload: unknown): void {
+    if (!this.shouldLog(Severity.ERROR)) {
+      return;
+    }
+
     // NOTE: a hack to fetch the hidden 2nd argument.
     const err = (arguments.length > 1) ? arguments[1] as Error : undefined;
 
     this.log(Severity.ERROR, payload, err);
   }
 
-  convertErr(err: Error): Record<string, unknown> {
+  private shouldLog(severity: Severity): boolean {
+    const v = severityToValue(severity);
+    return (this.severityValue >= v);
+  }
+
+  private convertErr(err: Error): Record<string, unknown> {
     return {
       message: err.message,
       name: err.name,
@@ -99,4 +163,10 @@ class Logger {
   }
 }
 
-export { Logger, Severity };
+const createLogger = (sev: Severity | void): Logger => {
+  const v = (sev) ? sev : Severity.DEBUG;
+  return new Logger(v);
+};
+
+export { createLogger };
+export type { Severity };
