@@ -116,7 +116,7 @@ class Logger {
 
   private shouldLog(severity: Severity): boolean {
     const v = severityToValue(severity);
-    return (this.severityValue >= v);
+    return (this.severityValue <= v);
   }
 
   private convertErr(err: Error): Record<string, unknown> {
