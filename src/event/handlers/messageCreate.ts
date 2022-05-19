@@ -1,11 +1,13 @@
 import type { Bot, EventHandlers, Message } from "../../../deps.ts";
-import type { Loggable } from "../../logger/mod.ts";
+import type { HandlerOptions } from "../../../shared.ts";
 
 import { sendMessage } from "../../../deps.ts";
 
 const messageCreateHandler = (
-  logger: Loggable,
+  options: HandlerOptions,
 ): EventHandlers["messageCreate"] => {
+  const logger = options.logger;
+
   return (bot: Bot, message: Message): any => {
     logger.debug({ message });
 

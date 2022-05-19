@@ -5,7 +5,7 @@ import type {
   Interaction,
 } from "../../deps.ts";
 
-import { registerGuildCommands } from "./commander.ts";
+import { CommandManager } from "./commander.ts";
 
 export type subCommand = Omit<Command, "subcommands">;
 export type subCommandGroup = {
@@ -23,4 +23,4 @@ export interface Command {
   subcommands?: Array<subCommandGroup | subCommand>;
 }
 
-export { registerGuildCommands };
+export { CommandManager };
