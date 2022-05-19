@@ -4,7 +4,6 @@ import type {
   Interaction,
 } from "../../../deps.ts";
 import type { Command } from "../mod.ts";
-
 import type { Loggable } from "../../logger/mod.ts";
 
 import { ApplicationCommandTypes } from "../../../deps.ts";
@@ -28,7 +27,10 @@ class EventPollCommand implements Command {
       startcmd.usage,
       stopcmd.usage,
     ];
-    this.options = (startcmd.options).concat(stopcmd.options);
+    this.options = [
+      startcmd.option,
+      stopcmd.option,
+    ];
     this.type = ApplicationCommandTypes.ChatInput;
 
     this.logger = logger;
@@ -39,4 +41,8 @@ class EventPollCommand implements Command {
   }
 }
 
-export { EventPollCommand };
+const createEventPollCommand = (logger: Loggable): Command => {
+  return new EventPollCommand(logger);
+};
+
+export { createEventPollCommand };

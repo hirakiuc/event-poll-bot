@@ -8,7 +8,7 @@ import { readyHandler } from "./ready.ts";
 import { messageCreateHandler } from "./messageCreate.ts";
 import { guildCreateHandler } from "./guildCreate.ts";
 
-const eventHandlers = (logger: Loggable): EventHandlers => {
+const eventHandlers = (logger: Loggable): Partial<EventHandlers> => {
   return createEventHandlers({
     guildCreate: guildCreateHandler(logger),
     messageCreate: messageCreateHandler(logger),

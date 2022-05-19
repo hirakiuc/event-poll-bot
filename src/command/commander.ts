@@ -7,15 +7,19 @@ import type {
 import { upsertApplicationCommands } from "../../deps.ts";
 
 import { Loggable } from "../logger/mod.ts";
+import { createEventPollCommand } from "./eventpoll/eventpoll.ts";
 
-const updateGuildCommands = async (
+const registerGuildCommands = async (
   bot: Bot,
+  guildIds: bigint[],
   logger: Loggable,
 ): Promise<Error | void> => {
-  const guildCommands: MakeRequired<CreateApplicationCommand, "name">[] = [];
+  const guildCommands: MakeRequired<CreateApplicationCommand, "name">[] = [
+    createEventPollCommand(logger),
+  ];
 
   if (guildCommands.length > 0) {
-    for (const guildId of bot.activeGuildIds) {
+    for (const guildId of guildIds) {
       try {
         await upsertApplicationCommands(bot, guildCommands, guildId);
       } catch (err) {
@@ -28,4 +32,4 @@ const updateGuildCommands = async (
   return Promise.resolve();
 };
 
-export { updateGuildCommands };
+export { registerGuildCommands };

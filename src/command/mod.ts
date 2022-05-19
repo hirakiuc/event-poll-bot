@@ -1,9 +1,11 @@
 import type {
   ApplicationCommandOption,
-  ApplicationCommandOptionTypes,
+  ApplicationCommandTypes,
   Bot,
   Interaction,
 } from "../../deps.ts";
+
+import { registerGuildCommands } from "./commander.ts";
 
 export type subCommand = Omit<Command, "subcommands">;
 export type subCommandGroup = {
@@ -16,7 +18,9 @@ export interface Command {
   description: string;
   usage?: string[];
   options?: ApplicationCommandOption[];
-  type: ApplicationCommandOptionTypes;
+  type: ApplicationCommandTypes;
   execute: (bot: Bot, interaction: Interaction) => unknown;
   subcommands?: Array<subCommandGroup | subCommand>;
 }
+
+export { registerGuildCommands };
