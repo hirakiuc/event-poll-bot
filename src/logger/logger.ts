@@ -128,6 +128,16 @@ class Logger {
   }
 
   private log(severity: Severity, payload: unknown, err?: Error): void {
+    const msg = this.mergeContents(payload, err);
+    const entry = Object.assign({ severity }, msg);
+
+    // NOTE: Need to use replacer argument due to parse any BigInt values
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
+    console.log(JSON.stringify(entry, replacer));
+  }
+
+  // Merge payload and error (if exists) into a Record<string, unknown> instance.
+  private mergeContents(payload: unknown, err?: Error): Record<string, unknown> {
     const records: Record<string, unknown>[] = [];
 
     switch (typeof payload) {
@@ -152,14 +162,9 @@ class Logger {
       records.push({ error: this.convertErr(err) });
     }
 
-    const entry: Record<string, unknown> = { severity };
-    for (const [key, value] of Object.entries(records)) {
-      entry[key] = value;
-    }
-
-    // NOTE: Need to use replacer argument due to parse any BigInt values
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
-    console.log(JSON.stringify(entry, replacer));
+    return records.reduce((acc: Record<string, unknown>, v) => {
+      return Object.assign(acc, v);
+    }, {});
   }
 }
 
