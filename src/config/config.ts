@@ -14,7 +14,7 @@ class Config {
     this.map = new ConfigMap();
   }
 
-  load(): (Error | void) {
+  load(): Error | void {
     const keys = [
       KeyDiscordToken,
       KeyDiscordBotId,

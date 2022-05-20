@@ -1,7 +1,15 @@
-import type { ApplicationCommandOption } from "../../../deps.ts";
-import { ApplicationCommandOptionTypes } from "../../../deps.ts";
+import type {
+  ApplicationCommandOption,
+  Bot,
+  Interaction,
+} from "../../../deps.ts";
+import type { CommandHandler, SubCommand } from "../../../shared.ts";
+import type { Loggable } from "../../logger/mod.ts";
 
-const usage = "/event-poll start title option1...";
+import {
+  ApplicationCommandOptionTypes,
+  InteractionResponseTypes,
+} from "../../../deps.ts";
 
 // /event-poll start ...
 const option: ApplicationCommandOption = {
@@ -49,4 +57,34 @@ const option: ApplicationCommandOption = {
   ],
 };
 
-export { option, usage };
+const createExecute = (logger: Loggable): CommandHandler => {
+  return async (bot: Bot, interaction: Interaction): Promise<Error | void> => {
+    logger.debug("Invoke /event-poll start command");
+
+    await bot.helpers.sendInteractionResponse(
+      interaction.id,
+      interaction.token,
+      {
+        type: InteractionResponseTypes.ChannelMessageWithSource,
+        data: {
+          content: "Invoked /event-poll start command",
+        },
+      },
+    );
+  };
+};
+
+const createEventPollStartCmd = (logger: Loggable): SubCommand => {
+  return {
+    name: "start",
+    description: "start an event poll",
+    usage: ["/event-poll start title option1..."],
+
+    getOption: (): ApplicationCommandOption => {
+      return option;
+    },
+    execute: createExecute(logger),
+  };
+};
+
+export { createEventPollStartCmd };
