@@ -7,19 +7,27 @@ const interactionCreateHandler = (
   options: HandlerOptions,
 ): EventHandlers["interactionCreate"] => {
   const logger = options.logger;
+  const cmdMgr = options.cmdMgr;
 
-  return (bot: Bot, interaction: Interaction): any => {
-    logger.debug({ interaction });
-
+  return async (
+    bot: Bot,
+    interaction: Interaction,
+  ): Promise<Error | unknown> => {
     if (!interaction.channelId) {
       logger.debug("this app does not support DM, yet");
       return Promise.resolve();
     }
 
-    const channelId = interaction.channelId;
-    sendMessage(bot, channelId, {
-      content: "Hi!, I received your request, but not implemented yet.",
-    });
+    try {
+      await cmdMgr.onInteraction(bot, interaction);
+    } catch (err) {
+      logger.error("failed to execute the command:", err);
+
+      const channelId = interaction.channelId;
+      sendMessage(bot, channelId, {
+        content: `failed to execute the command: ${err.message}`,
+      });
+    }
   };
 };
 

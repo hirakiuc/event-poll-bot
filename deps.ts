@@ -5,6 +5,7 @@ export {
   createApplicationCommand,
   createBot,
   createEventHandlers,
+  InteractionResponseTypes,
   InteractionTypes,
   sendMessage,
   startBot,

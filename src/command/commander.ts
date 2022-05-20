@@ -1,5 +1,5 @@
 import type { Bot, Interaction } from "../../deps.ts";
-import type { Command } from "./mod.ts";
+import type { Command } from "../../shared.ts";
 
 import { InteractionTypes, upsertApplicationCommands } from "../../deps.ts";
 import { Loggable } from "../logger/mod.ts";
@@ -48,13 +48,20 @@ class CommandManager {
     return Promise.resolve();
   }
 
-  async onInteraction(bot: Bot, interaction: Interaction): Promise<any> {
+  async onInteraction(
+    bot: Bot,
+    interaction: Interaction,
+  ): Promise<Error | any> {
     // Guards
     if (!this.isInteractionForApplicationCommand(interaction)) {
-      return Promise.resolve(false);
+      const msg = `This interaction does not seem to be a application command.`;
+      const err = new Deno.errors.NotSupported(msg);
+      return Promise.reject(err);
     }
     if (!interaction.data) {
-      return Promise.resolve(false);
+      const msg = `This interaction does not have enough request data.`;
+      const err = new Deno.errors.NotSupported(msg);
+      return Promise.reject(err);
     }
 
     const cmd = this.cache.get(interaction.data.name);
