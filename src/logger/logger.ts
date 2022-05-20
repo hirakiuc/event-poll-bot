@@ -137,7 +137,10 @@ class Logger {
   }
 
   // Merge payload and error (if exists) into a Record<string, unknown> instance.
-  private mergeContents(payload: unknown, err?: Error): Record<string, unknown> {
+  private mergeContents(
+    payload: unknown,
+    err?: Error,
+  ): Record<string, unknown> {
     const records: Record<string, unknown>[] = [];
 
     switch (typeof payload) {
