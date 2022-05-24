@@ -3,13 +3,15 @@ import type {
   Bot,
   Interaction,
 } from "../../../deps.ts";
-import type { CommandHandler, SubCommand } from "../../../shared.ts";
+import type { SubCommand, SubCommandArgument } from "../../../shared.ts";
 import type { Loggable } from "../../logger/mod.ts";
 
 import {
   ApplicationCommandOptionTypes,
   InteractionResponseTypes,
 } from "../../../deps.ts";
+
+import { AbstractSubCommand } from "../../../shared.ts";
 
 // /event-poll stop ...
 const option: ApplicationCommandOption = {
@@ -27,9 +29,28 @@ const option: ApplicationCommandOption = {
   ],
 };
 
-const createExecute = (logger: Loggable): CommandHandler => {
-  return async (bot: Bot, interaction: Interaction): Promise<Error | void> => {
-    logger.debug("Invoke /event-poll stop command");
+class EventPollStopCommand extends AbstractSubCommand {
+  constructor(logger: Loggable) {
+    super({
+      name: "stop",
+      description: "stop an event poll",
+      usage: ["/event-poll stop id"],
+    }, logger);
+  }
+
+  getOption(): ApplicationCommandOption {
+    return option;
+  }
+
+  async execute(
+    bot: Bot,
+    interaction: Interaction,
+    args: SubCommandArgument[],
+  ): Promise<Error | void> {
+    this.logger.debug({
+      message: "Invoke /event-poll stop command",
+      arguments: args,
+    });
 
     await bot.helpers.sendInteractionResponse(
       interaction.id,
@@ -41,20 +62,11 @@ const createExecute = (logger: Loggable): CommandHandler => {
         },
       },
     );
-  };
-};
+  }
+}
 
 const createEventPollStopCmd = (logger: Loggable): SubCommand => {
-  return {
-    name: "stop",
-    description: "stop an event poll",
-    usage: ["/event-poll stop id"],
-
-    getOption: (): ApplicationCommandOption => {
-      return option;
-    },
-    execute: createExecute(logger),
-  };
+  return new EventPollStopCommand(logger);
 };
 
 export { createEventPollStopCmd };

@@ -1,6 +1,7 @@
 // Internal shared types
 import type {
   ApplicationCommandOption,
+  ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
   Bot,
   Interaction,
@@ -36,5 +37,44 @@ export interface SubCommand {
   usage?: string[];
 
   getOption: () => ApplicationCommandOption;
-  execute: CommandHandler;
+  execute: (
+    bot: Bot,
+    interaction: Interaction,
+    args: SubCommandArgument[],
+  ) => any;
+}
+
+export interface SubCommandOptions {
+  name: string;
+  description: string;
+  usage: string[];
+}
+
+export interface SubCommandArgument {
+  value: any;
+  type: ApplicationCommandOptionTypes;
+  name: string;
+}
+
+export abstract class AbstractSubCommand {
+  name: string;
+  description: string;
+  usage: string[];
+
+  protected logger: Loggable;
+
+  constructor(opts: SubCommandOptions, logger: Loggable) {
+    this.name = opts.name;
+    this.description = opts.description;
+    this.usage = opts.usage;
+
+    this.logger = logger;
+  }
+
+  abstract getOption(): ApplicationCommandOption;
+  abstract execute(
+    bot: Bot,
+    interaction: Interaction,
+    args: SubCommandArgument[],
+  ): any;
 }

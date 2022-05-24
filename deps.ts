@@ -16,6 +16,7 @@ export type {
   ApplicationCommandOption,
   Bot,
   CreateApplicationCommand,
+  Embed,
   EventHandlers,
   Guild,
   Interaction,
