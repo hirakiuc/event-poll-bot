@@ -3,7 +3,11 @@ import type {
   Bot,
   Interaction,
 } from "../../../deps.ts";
-import type { Command, SubCommand } from "../../../shared.ts";
+import type {
+  Command,
+  SubCommand,
+  SubCommandArgument,
+} from "../../../shared.ts";
 import type { Loggable } from "../../logger/mod.ts";
 
 import { ApplicationCommandTypes } from "../../../deps.ts";
@@ -80,7 +84,21 @@ class EventPollCommand implements Command {
       return Promise.reject(err);
     }
 
-    await subcmd.execute(bot, interaction);
+    // parse rest of options for sub command.
+    // FIXME: need to be improved for more dedicated logic
+    const subArgs: SubCommandArgument[] = [];
+    const restOfOptions = args[0].options;
+    if (Array.isArray(restOfOptions)) {
+      for (const opt of restOfOptions) {
+        subArgs.push({
+          name: opt.name,
+          type: opt.type,
+          value: opt.value,
+        });
+      }
+    }
+
+    await subcmd.execute(bot, interaction, subArgs);
 
     return Promise.resolve();
   }
