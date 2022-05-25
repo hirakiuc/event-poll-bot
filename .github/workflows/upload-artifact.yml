@@ -43,6 +43,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.GITHUB_ACTION_REPOSITORY }}:latest
+          tags: ${GITHUB_ACTION_REPOSITORY}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
