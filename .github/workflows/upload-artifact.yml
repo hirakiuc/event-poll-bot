@@ -47,7 +47,7 @@ jobs:
       - id: configure-docker
         name: Configure gcloud for docker.
         run: |
-          gcloud --quiet auth configure-docker asia.gcr.io
+          gcloud auth configure-docker asia-docker.pkg.dev
 
       - name: Build and push
         uses: docker/build-push-action@v3
