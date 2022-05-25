@@ -16,6 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            hirakiuc/event-poll-bot
+          tags:
+            type=ref,event=tag
+            type=ref,event=branch
+            type=ref,event=pr
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -43,6 +54,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${GITHUB_ACTION_REPOSITORY}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
