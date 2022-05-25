@@ -1,7 +1,7 @@
 DIRS := . ${shell find ./src -type d}
 SRCS := $(foreach dir, $(DIRS), $(wildcard $(dir)/*.ts))
 
-.PHONY: types, fmt, lint, check, cache, docs, build, run
+.PHONY: types, fmt, lint, check, cache, docs, build, run, run-webhook
 
 types: cache
 	deno check -c ./deno.json ${SRCS}
@@ -27,3 +27,6 @@ build:
 # NOTE: Use this task only for running this app locally.
 run:
 	docker run --env-file ./env.list --platform linux/amd64 hirakiuc/event-poll-bot:latest
+
+run-webhook:
+	deno run --allow-net --allow-env webhook.ts

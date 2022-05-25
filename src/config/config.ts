@@ -1,6 +1,7 @@
 const KeyDiscordToken = "DISCORD_TOKEN";
 const KeyDiscordBotId = "DISCORD_BOT_ID";
 const KeyLogLevel = "LOG_LEVEL";
+const KeyDiscordBotPublicKey = "DISCORD_BOT_PUBLIC_KEY";
 
 // https://www.typescriptlang.org/docs/handbook/2/classes.html#index-signatures
 class ConfigMap {
@@ -18,6 +19,7 @@ class Config {
     const keys = [
       KeyDiscordToken,
       KeyDiscordBotId,
+      KeyDiscordBotPublicKey,
       KeyLogLevel,
     ];
 
@@ -40,6 +42,11 @@ class Config {
     const v = this.map[KeyDiscordBotId];
     const str = (v) ? v : "";
     return BigInt(str);
+  }
+
+  get discordBotPublicKey(): string {
+    const v = this.map[KeyDiscordBotPublicKey];
+    return (v) ? v : "";
   }
 
   get logLevel(): string {
