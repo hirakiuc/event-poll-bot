@@ -22,7 +22,7 @@ jobs:
         with:
           images: |
             hirakiuc/event-poll-bot
-          tags:
+          tags: |
             type=ref,event=tag
             type=ref,event=branch
             type=ref,event=pr
