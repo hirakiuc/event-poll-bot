@@ -12,6 +12,8 @@ import type { Config } from "./src/config/mod.ts";
 
 import { CommandManager } from "./src/command/commander.ts";
 
+export type { Loggable };
+
 export interface HandlerOptions {
   logger: Loggable;
   config: Config;

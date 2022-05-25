@@ -1,8 +1,7 @@
 import type { Bot, Interaction } from "../../deps.ts";
-import type { Command } from "../../shared.ts";
+import type { Command, Loggable } from "../../shared.ts";
 
 import { InteractionTypes, upsertApplicationCommands } from "../../deps.ts";
-import { Loggable } from "../logger/mod.ts";
 import { createEventPollCommand } from "./eventpoll/eventpoll.ts";
 
 class CommandManager {

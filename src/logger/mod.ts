@@ -1,6 +1,9 @@
+import type { Severity } from "./logger.ts";
 import { createLogger } from "./logger.ts";
 
 interface Loggable {
+  setSeverity(sev: Severity): void;
+
   // debug
   debug(msg: string): void;
   debug(...payloads: Record<string, unknown>[]): void;

@@ -5,10 +5,10 @@ import type {
 } from "../../../deps.ts";
 import type {
   Command,
+  Loggable,
   SubCommand,
   SubCommandArgument,
 } from "../../../shared.ts";
-import type { Loggable } from "../../logger/mod.ts";
 
 import { ApplicationCommandTypes } from "../../../deps.ts";
 
