@@ -4,8 +4,11 @@ import type {
   Embed,
   Interaction,
 } from "../../../deps.ts";
-import type { SubCommand, SubCommandArgument } from "../../../shared.ts";
-import type { Loggable } from "../../logger/mod.ts";
+import type {
+  Loggable,
+  SubCommand,
+  SubCommandArgument,
+} from "../../../shared.ts";
 
 import {
   ApplicationCommandOptionTypes,
