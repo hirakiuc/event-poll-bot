@@ -9,6 +9,7 @@ export {
   InteractionTypes,
   sendMessage,
   startBot,
+  stopBot,
   upsertApplicationCommands,
   verifySignature,
 } from "https://deno.land/x/discordeno@13.0.0-rc35/mod.ts";
