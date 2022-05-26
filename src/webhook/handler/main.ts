@@ -87,8 +87,7 @@ const createMainHandler = (bot: Bot, opts: HandlerOptions): Handler => {
         }
 
         return json({
-          type: InteractionResponseTypes.ChannelMessageWithSource,
-          data: res,
+          type: InteractionResponseTypes.DeferredUpdateMessage,
         });
       }
       default: {
