@@ -9,9 +9,6 @@ import { startServer } from "./src/webhook/mod.ts";
 // Create logger instance with the default log level.
 const logger = createLogger();
 
-// Logging
-// app.use(access_logging);
-
 const { config, err } = loadConfig();
 if (err) {
   logger.error("failed to load config from environment variables.", err);
