@@ -22,9 +22,8 @@ logger.setSeverity(config.logLevel);
 const cmdMgr = new CommandManager(logger);
 cmdMgr.init();
 
-const bot = createBot({
+const bot = await createBot({
   token: config.discordToken,
-  intents: ["Guilds", "GuildMessages"],
   botId: config.discordBotId,
   events: createEventHandlers({}),
 });
