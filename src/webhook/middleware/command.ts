@@ -85,9 +85,8 @@ const createCommandMiddleware = (
     }
 
     // Invoke command when the POST request was sent to the "/"
-    const body = await ctx.request.body().value;
-
-    const interaction = JSON.parse(body) as Interaction;
+    // (the body value has already been parsed by oak.)
+    const interaction = await ctx.request.body().value as Interaction;
     switch (interaction.type) {
       case InteractionTypes.Ping: {
         success(ctx, {
