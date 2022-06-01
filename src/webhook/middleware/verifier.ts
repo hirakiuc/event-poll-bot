@@ -42,16 +42,14 @@ const createVerifierMiddleware = (
       return json(ctx, { message: "Bad request" }, Status.BadRequest);
     }
 
-    logger.debug({
-      HeaderXSignatureType: signatureType,
-      HeaderXSignatureTS: signatureTs,
-    });
+    // Read the request body as a string value for the verifySignature method.
+    const body = await req.body({ type: "text" }).value;
 
     const result = verifySignature({
       publicKey: publicKey,
       signature: signatureType,
       timestamp: signatureTs,
-      body: await req.body().value,
+      body: body,
     });
     if (!result.isValid) {
       logger.debug({ message: "Invalid signature" });
