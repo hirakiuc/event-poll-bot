@@ -1,7 +1,7 @@
 DIRS := . ${shell find ./src -type d}
 SRCS := $(foreach dir, $(DIRS), $(wildcard $(dir)/*.ts))
 
-.PHONY: types, fmt, lint, check, cache, docs, build, run, run-webhook
+.PHONY: types, fmt, lint, check, cache, docs, build, run, run-local
 
 types: cache
 	deno check -c ./deno.json ${SRCS}
