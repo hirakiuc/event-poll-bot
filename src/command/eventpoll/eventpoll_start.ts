@@ -3,19 +3,16 @@ import type {
   Bot,
   Embed,
   Interaction,
+  InteractionDataOption,
+  InteractionResponse,
 } from "../../../deps.ts";
-import type {
-  Loggable,
-  SubCommand,
-  SubCommandArgument,
-} from "../../../shared.ts";
+
+import type { Executor, Loggable, SubCommand } from "../../../shared.ts";
 
 import {
   ApplicationCommandOptionTypes,
   InteractionResponseTypes,
 } from "../../../deps.ts";
-
-import { AbstractSubCommand } from "../../../shared.ts";
 
 const emojis: string[] = [
   "🇦", // :regional_indicator_a
@@ -133,35 +130,96 @@ const option: ApplicationCommandOption = {
   ],
 };
 
-class EventPollStartCommand extends AbstractSubCommand {
-  constructor(logger: Loggable) {
-    super({
-      name: "start",
-      description: "start an event poll",
-      usage: ["/event-poll start title option1..."],
-    }, logger);
+class EventPollStartCommand implements SubCommand {
+  name: string;
+  description: string;
+  usage: string[];
+
+  private bot: Bot;
+  private logger: Loggable;
+
+  constructor(bot: Bot, logger: Loggable) {
+    this.name = "start";
+    this.description = "start an event poll";
+    this.usage = ["/event-poll start title option1..."];
+    this.logger = logger;
+
+    this.bot = bot;
   }
 
   getOption(): ApplicationCommandOption {
     return option;
   }
 
-  async execute(
-    bot: Bot,
+  getExecutor(
     interaction: Interaction,
-    args: SubCommandArgument[],
-  ): Promise<Error | void> {
+    args: InteractionDataOption[],
+  ): Executor | Error {
+    return new EventPollStartExecutor(
+      this,
+      interaction,
+      args,
+      this.bot,
+      this.logger,
+    );
+  }
+}
+
+class EventPollStartExecutor implements Executor {
+  private subcmd: SubCommand;
+  private interaction: Interaction;
+  private options: InteractionDataOption[];
+  private logger: Loggable;
+
+  private args: Arguments;
+  private bot: Bot;
+
+  constructor(
+    subcmd: SubCommand,
+    interaction: Interaction,
+    options: InteractionDataOption[],
+    bot: Bot,
+    logger: Loggable,
+  ) {
+    this.subcmd = subcmd;
+    this.interaction = interaction;
+    this.options = options;
+    this.logger = logger;
+
+    this.args = new Arguments();
+    this.bot = bot;
+  }
+
+  beforeExec(): Promise<InteractionResponse | void | Error> {
+    try {
+      this.args = this.parseArguments(this.options);
+    } catch (err) {
+      this.logger.warn(`failed to parse options:${err.message}`);
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+  }
+
+  execute(): Promise<InteractionResponse | void | Error> {
+    return Promise.resolve({
+      type: InteractionResponseTypes.DeferredChannelMessageWithSource,
+    });
+  }
+
+  async afterExec(): Promise<InteractionResponse | void | Error> {
+    // Sleep 2 seconds.
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     this.logger.debug({
       message: "Invoke /event-poll start command",
-      arguments: args,
+      arguments: this.args,
     });
 
     try {
-      const values = this.parseArguments(args);
-
-      await bot.helpers.sendInteractionResponse(
-        interaction.id,
-        interaction.token,
+      await this.bot.helpers.sendInteractionResponse(
+        this.interaction.id,
+        this.interaction.token,
         // https://doc.deno.land/https://deno.land/x/discordeno@13.0.0-rc35/mod.ts/~/InteractionResponse
         {
           type: InteractionResponseTypes.ChannelMessageWithSource,
@@ -169,21 +227,21 @@ class EventPollStartCommand extends AbstractSubCommand {
           data: {
             content: "Polling an event schedule...",
             tts: false,
-            embeds: this.transformArgumentsToEmbeds(values),
+            embeds: this.transformArgumentsToEmbeds(this.args),
           },
         },
       );
 
       // Fetch the interaction response sent by above code.
-      const res = await bot.helpers.getOriginalInteractionResponse(
-        interaction.token,
+      const res = await this.bot.helpers.getOriginalInteractionResponse(
+        this.interaction.token,
       );
 
       // Add reactions
-      await bot.helpers.addReactions(
-        interaction.channelId!,
+      await this.bot.helpers.addReactions(
+        this.interaction.channelId!,
         res.id,
-        values.getEmojis(),
+        this.args.getEmojis(),
         true,
       );
     } catch (err) {
@@ -194,7 +252,7 @@ class EventPollStartCommand extends AbstractSubCommand {
     return Promise.resolve();
   }
 
-  private parseArguments(args: SubCommandArgument[]): Arguments {
+  private parseArguments(args: InteractionDataOption[]): Arguments {
     if (args.length === 0) {
       throw new Deno.errors.InvalidData("Invalid request:No arguments");
     }
@@ -243,8 +301,8 @@ class EventPollStartCommand extends AbstractSubCommand {
   }
 }
 
-const createEventPollStartCmd = (logger: Loggable): SubCommand => {
-  return new EventPollStartCommand(logger);
+const createEventPollStartCmd = (bot: Bot, logger: Loggable): SubCommand => {
+  return new EventPollStartCommand(bot, logger);
 };
 
 export { createEventPollStartCmd };
