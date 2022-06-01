@@ -1,10 +1,4 @@
 // handler generators
-import { guildCreateHandler } from "./guildCreate.ts";
-import { messageCreateHandler } from "./messageCreate.ts";
-import { readyHandler } from "./ready.ts";
-
-export {
-  guildCreateHandler,
-  messageCreateHandler,
-  readyHandler,
-};
+export { guildCreateHandler } from "./guildCreate.ts";
+export { messageCreateHandler } from "./messageCreate.ts";
+export { readyHandler } from "./ready.ts";
