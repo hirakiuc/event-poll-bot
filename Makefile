@@ -28,5 +28,5 @@ build:
 run:
 	docker run --env-file ./env.list --platform linux/amd64 -p 8000:8000 hirakiuc/event-poll-bot:latest
 
-run-webhook:
-	deno run --allow-net --allow-env webhook.ts
+run-local:
+	deno run --allow-net --allow-env mod.ts
