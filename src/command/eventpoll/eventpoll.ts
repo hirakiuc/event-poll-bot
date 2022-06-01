@@ -75,13 +75,17 @@ class EventPollCommand implements Command {
     const args = this.parseArguments(interaction);
 
     if (args.name.length === 0) {
-      return new Deno.errors.NotSupported("Invalid options:no sub command name");
+      return new Deno.errors.NotSupported(
+        "Invalid options:no sub command name",
+      );
     }
 
     this.logger.debug({ subcmd: args.name });
     const subcmd = this.cache.get(args.name);
     if (!subcmd) {
-      return new Deno.errors.NotSupported(`need to be implemented:subcmd(${args.name})`);
+      return new Deno.errors.NotSupported(
+        `need to be implemented:subcmd(${args.name})`,
+      );
     }
 
     return subcmd.getExecutor(interaction, args.options);
