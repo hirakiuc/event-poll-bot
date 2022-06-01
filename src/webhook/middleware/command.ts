@@ -47,13 +47,13 @@ const processCommand = async (
   next: () => Promise<unknown>,
 ): Promise<unknown> => {
   const before = await executor.beforeExec();
-  if (!before) {
+  if (before) {
     setResponse(ctx, before);
     return await next();
   }
 
   const ret = await executor.execute();
-  if (!ret) {
+  if (ret) {
     setResponse(ctx, ret);
   }
   if (ret instanceof Error) {
@@ -61,7 +61,7 @@ const processCommand = async (
   }
 
   const after = await executor.afterExec();
-  if (!after) {
+  if (after) {
     setResponse(ctx, after);
   }
 
@@ -86,6 +86,7 @@ const createCommandMiddleware = (
 
     // Invoke command when the POST request was sent to the "/"
     // (the body value has already been parsed by oak.)
+    // TOOD: validation for the result is needed. (not type safe)
     const interaction = await ctx.request.body().value as Interaction;
     switch (interaction.type) {
       case InteractionTypes.Ping: {
@@ -98,7 +99,6 @@ const createCommandMiddleware = (
         const cmd = await cmdMgr.getCommand(interaction);
         if (cmd instanceof Error) {
           // BadRequest
-          // Internal Server Error
           json(ctx, { error: cmd.message }, Status.BadRequest);
           return await next();
         }

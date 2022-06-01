@@ -17,6 +17,11 @@ import { ApplicationCommandTypes } from "../../../deps.ts";
 import { createEventPollStartCmd } from "./eventpoll_start.ts";
 import { createEventPollStopCmd } from "./eventpoll_stop.ts";
 
+interface CommandArgument {
+  name: string;
+  options: InteractionDataOption[];
+}
+
 class EventPollCommand implements Command {
   readonly description: string;
   readonly name: string;
@@ -69,32 +74,43 @@ class EventPollCommand implements Command {
   getExecutor(interaction: Interaction): Executor | Error {
     const args = this.parseArguments(interaction);
 
-    if (args.length === 0) {
-      return new Deno.errors.NotSupported("need to be implemented.");
+    if (args.name.length === 0) {
+      return new Deno.errors.NotSupported("Invalid options:no sub command name");
     }
 
-    const name = args[0].value as string;
-    const subcmd = this.cache.get(name);
+    this.logger.debug({ subcmd: args.name });
+    const subcmd = this.cache.get(args.name);
     if (!subcmd) {
-      return new Deno.errors.NotSupported("need to be implemented.");
+      return new Deno.errors.NotSupported(`need to be implemented:subcmd(${args.name})`);
     }
 
-    return subcmd.getExecutor(interaction, args.slice(1));
+    return subcmd.getExecutor(interaction, args.options);
   }
 
-  private parseArguments(interaction: Interaction): InteractionDataOption[] {
+  private parseArguments(interaction: Interaction): CommandArgument {
+    this.logger.debug({ method: "parseArguments", interaction: interaction });
     if (!interaction.data || !interaction.data.options) {
       this.logger.debug("interaction didn't have any data.options...");
-      return [];
+      return {
+        name: "",
+        options: [],
+      };
     }
 
     const args = interaction.data.options;
+    this.logger.debug({ method: "parseArguments", args: args });
     if (args.length === 0) {
       this.logger.debug("invalid event-poll request:No arguments");
-      return [];
+      return {
+        name: "",
+        options: [],
+      };
     }
 
-    return args;
+    return {
+      name: args[0].name as string,
+      options: (args[0].options) ? args[0].options : [],
+    };
   }
 }
 

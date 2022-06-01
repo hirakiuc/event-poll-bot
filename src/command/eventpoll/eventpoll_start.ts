@@ -208,8 +208,8 @@ class EventPollStartExecutor implements Executor {
   }
 
   async afterExec(): Promise<InteractionResponse | void | Error> {
-    // Sleep 2 seconds.
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // wait for a little bit
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     this.logger.debug({
       message: "Invoke /event-poll start command",
