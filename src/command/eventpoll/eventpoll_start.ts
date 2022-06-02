@@ -217,18 +217,12 @@ class EventPollStartExecutor implements Executor {
     });
 
     try {
-      await this.bot.helpers.sendInteractionResponse(
-        this.interaction.id,
+      await this.bot.helpers.editInteractionResponse(
         this.interaction.token,
-        // https://doc.deno.land/https://deno.land/x/discordeno@13.0.0-rc35/mod.ts/~/InteractionResponse
+        // https://doc.deno.land/https://deno.land/x/discordeno@13.0.0-rc42/mod.ts/~/EditWebhookMessage
         {
-          type: InteractionResponseTypes.ChannelMessageWithSource,
-          // https://doc.deno.land/https://deno.land/x/discordeno@13.0.0-rc35/mod.ts/~/InteractionApplicationCommandCallbackData
-          data: {
-            content: "Polling an event schedule...",
-            tts: false,
-            embeds: this.transformArgumentsToEmbeds(this.args),
-          },
+          content: "Polling an event schedule...",
+          embeds: this.transformArgumentsToEmbeds(this.args),
         },
       );
 
