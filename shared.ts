@@ -1,82 +1,75 @@
 // Internal shared types
 import type {
   ApplicationCommandOption,
-  ApplicationCommandOptionTypes,
   ApplicationCommandTypes,
   Bot,
   Interaction,
 } from "./deps.ts";
 
+import type { InteractionDataOption, InteractionResponse } from "./deps.ts";
+
 import type { Loggable } from "./src/logger/mod.ts";
 import type { Config } from "./src/config/mod.ts";
 
-import { CommandManager } from "./src/command/commander.ts";
+export type { Config, Loggable };
 
-export type { Loggable };
+export interface CommandRegistry {
+  init: (bot: Bot, config: Config) => void;
+  getCommand: (interaction: Interaction) => Command | Error;
+
+  registerGuildCommands: (
+    bot: Bot,
+    guildIds: bigint[],
+  ) => Promise<Error | void>;
+}
 
 export interface HandlerOptions {
   logger: Loggable;
   config: Config;
-  cmdMgr: CommandManager;
+  cmdMgr: CommandRegistry;
 }
 
-export type CommandHandler = (bot: Bot, interaction: Interaction) => unknown;
+export interface Argument {
+  name: string;
+  type: InteractionDataOption;
+  value: any;
+}
+
+export type ExecResult = InteractionResponse | void | Error;
+
+export interface Executor {
+  beforeExec(): Promise<ExecResult>;
+  execute(): Promise<ExecResult>;
+  afterExec(): Promise<ExecResult>;
+}
 
 export interface Command {
-  name: string;
   description: string;
-  usage?: string[];
+  name: string;
   options?: ApplicationCommandOption[];
   type: ApplicationCommandTypes;
+  usage?: string[];
 
-  execute: CommandHandler;
-  subcommands?: Array<SubCommand>;
+  subcommands: Array<SubCommand>;
+  getExecutor: (interaction: Interaction) => Executor | Error;
 }
 
 export interface SubCommand {
   name: string;
   description: string;
-  usage?: string[];
+  usage: string[];
 
   getOption: () => ApplicationCommandOption;
-  execute: (
-    bot: Bot,
+  getExecutor: (
     interaction: Interaction,
-    args: SubCommandArgument[],
-  ) => any;
+    args: InteractionDataOption[],
+  ) => Executor | Error;
 }
 
-export interface SubCommandOptions {
+export interface CommandOptions {
   name: string;
   description: string;
-  usage: string[];
-}
-
-export interface SubCommandArgument {
-  value: any;
-  type: ApplicationCommandOptionTypes;
-  name: string;
-}
-
-export abstract class AbstractSubCommand {
-  name: string;
-  description: string;
-  usage: string[];
-
-  protected logger: Loggable;
-
-  constructor(opts: SubCommandOptions, logger: Loggable) {
-    this.name = opts.name;
-    this.description = opts.description;
-    this.usage = opts.usage;
-
-    this.logger = logger;
-  }
-
-  abstract getOption(): ApplicationCommandOption;
-  abstract execute(
-    bot: Bot,
-    interaction: Interaction,
-    args: SubCommandArgument[],
-  ): any;
+  usage?: string[];
+  options?: ApplicationCommandOption[];
+  type: ApplicationCommandTypes;
 }

@@ -1,3 +1,1 @@
-import { eventHandlers } from "./handlers.ts";
-
-export { eventHandlers };
+export { eventHandlers } from "./handlers.ts";

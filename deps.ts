@@ -11,7 +11,8 @@ export {
   startBot,
   stopBot,
   upsertApplicationCommands,
-} from "https://deno.land/x/discordeno@13.0.0-rc35/mod.ts";
+  verifySignature,
+} from "https://deno.land/x/discordeno@13.0.0-rc42/mod.ts";
 
 export type {
   ApplicationCommandOption,
@@ -21,7 +22,12 @@ export type {
   EventHandlers,
   Guild,
   Interaction,
+  InteractionDataOption,
+  InteractionResponse,
   MakeRequired,
   Message,
   User,
-} from "https://deno.land/x/discordeno@13.0.0-rc35/mod.ts";
+} from "https://deno.land/x/discordeno@13.0.0-rc42/mod.ts";
+
+export * as Oak from "https://deno.land/x/oak@v10.6.0/mod.ts";
+export { Status } from "https://deno.land/std@0.141.0/http/http_status.ts";

@@ -1,10 +1,15 @@
 import type { Bot, Interaction } from "../../deps.ts";
-import type { Command, Loggable } from "../../shared.ts";
+import type {
+  Command,
+  CommandRegistry,
+  Config,
+  Loggable,
+} from "../../shared.ts";
 
 import { InteractionTypes, upsertApplicationCommands } from "../../deps.ts";
 import { createEventPollCommand } from "./eventpoll/eventpoll.ts";
 
-class CommandManager {
+class CommandManager implements CommandRegistry {
   private cache: Map<string, Command>;
   private logger: Loggable;
 
@@ -13,9 +18,9 @@ class CommandManager {
     this.logger = logger;
   }
 
-  init(): void {
+  init(bot: Bot, _config: Config): void {
     const cmds = [
-      createEventPollCommand(this.logger),
+      createEventPollCommand(bot, this.logger),
     ];
 
     for (const cmd of cmds) {
@@ -47,32 +52,24 @@ class CommandManager {
     return Promise.resolve();
   }
 
-  async onInteraction(
-    bot: Bot,
-    interaction: Interaction,
-  ): Promise<Error | any> {
+  getCommand(interaction: Interaction): Command | Error {
     // Guards
     if (!this.isInteractionForApplicationCommand(interaction)) {
       const msg = `This interaction does not seem to be a application command.`;
-      const err = new Deno.errors.NotSupported(msg);
-      return Promise.reject(err);
+      return new Deno.errors.NotSupported(msg);
     }
     if (!interaction.data) {
       const msg = `This interaction does not have enough request data.`;
-      const err = new Deno.errors.NotSupported(msg);
-      return Promise.reject(err);
+      return new Deno.errors.NotSupported(msg);
     }
 
     const cmd = this.cache.get(interaction.data.name);
     if (!cmd) {
       const msg = `command '${interaction.data.name}' not found`;
-      const err = new Deno.errors.NotSupported(msg);
-      return Promise.reject(err);
+      return new Deno.errors.NotSupported(msg);
     }
 
-    await cmd.execute(bot, interaction);
-
-    return Promise.resolve();
+    return cmd;
   }
 
   private isInteractionForApplicationCommand(

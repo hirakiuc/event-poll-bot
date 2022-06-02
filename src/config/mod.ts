@@ -5,6 +5,7 @@ export interface Config {
 
   readonly discordToken: string;
   readonly discordBotId: bigint;
+  readonly discordBotPublicKey: string;
 }
 
 export { loadConfig };

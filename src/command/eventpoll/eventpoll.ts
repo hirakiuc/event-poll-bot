@@ -2,12 +2,14 @@ import type {
   ApplicationCommandOption,
   Bot,
   Interaction,
+  InteractionDataOption,
 } from "../../../deps.ts";
+
 import type {
   Command,
+  Executor,
   Loggable,
   SubCommand,
-  SubCommandArgument,
 } from "../../../shared.ts";
 
 import { ApplicationCommandTypes } from "../../../deps.ts";
@@ -15,38 +17,44 @@ import { ApplicationCommandTypes } from "../../../deps.ts";
 import { createEventPollStartCmd } from "./eventpoll_start.ts";
 import { createEventPollStopCmd } from "./eventpoll_stop.ts";
 
-class EventPollCommand implements Command {
-  description: string;
+interface CommandArgument {
   name: string;
-  type: number;
+  options: InteractionDataOption[];
+}
+
+class EventPollCommand implements Command {
+  readonly description: string;
+  readonly name: string;
+  readonly type: ApplicationCommandTypes;
 
   private cache: Map<string, SubCommand>;
   private logger: Loggable;
 
-  constructor(logger: Loggable) {
-    this.name = "event-poll";
-    this.description = "poll a schedule of an event.";
-    this.type = ApplicationCommandTypes.ChatInput;
-    this.cache = new Map();
+  private bot: Bot;
 
+  constructor(bot: Bot, logger: Loggable) {
+    this.description = "poll a schedule of an event.";
+    this.name = "event-poll";
+    this.type = ApplicationCommandTypes.ChatInput;
+
+    this.cache = new Map();
+    this.logger = logger;
+
+    this.bot = bot;
+
+    // initialize subcommands
     const subs = [
-      createEventPollStartCmd(logger),
-      createEventPollStopCmd(logger),
+      createEventPollStartCmd(bot, logger),
+      createEventPollStopCmd(bot, logger),
     ];
     for (const c of subs) {
       this.cache.set(c.name, c);
     }
-
-    this.logger = logger;
   }
 
-  get subcommands(): SubCommand[] {
-    return Array.from(this.cache.values());
-  }
-
-  get usage(): string[] {
+  get usage(): string[] | undefined {
     return this.subcommands
-      .map((v: SubCommand) => v.usage ? v.usage : [])
+      .map((v: SubCommand) => v.usage)
       .reduce((acc: string[], y: string[]) => acc.concat(y), []);
   }
 
@@ -59,53 +67,59 @@ class EventPollCommand implements Command {
       }, []);
   }
 
-  async execute(bot: Bot, interaction: Interaction): Promise<Error | unknown> {
-    this.logger.debug("event-poll invoked!");
+  get subcommands(): SubCommand[] {
+    return Array.from(this.cache.values());
+  }
 
+  getExecutor(interaction: Interaction): Executor | Error {
+    const args = this.parseArguments(interaction);
+
+    if (args.name.length === 0) {
+      return new Deno.errors.NotSupported(
+        "Invalid options:no sub command name",
+      );
+    }
+
+    this.logger.debug({ subcmd: args.name });
+    const subcmd = this.cache.get(args.name);
+    if (!subcmd) {
+      return new Deno.errors.NotSupported(
+        `need to be implemented:subcmd(${args.name})`,
+      );
+    }
+
+    return subcmd.getExecutor(interaction, args.options);
+  }
+
+  private parseArguments(interaction: Interaction): CommandArgument {
+    this.logger.debug({ method: "parseArguments", interaction: interaction });
     if (!interaction.data || !interaction.data.options) {
-      const err = new Deno.errors.NotSupported("invalid event-poll request");
-      return Promise.reject(err);
+      this.logger.debug("interaction didn't have any data.options...");
+      return {
+        name: "",
+        options: [],
+      };
     }
 
     const args = interaction.data.options;
-    if (args.length == 0) {
-      const err = new Deno.errors.NotSupported(
-        "invalid event-poll request:No arguments",
-      );
-      return Promise.reject(err);
+    this.logger.debug({ method: "parseArguments", args: args });
+    if (args.length === 0) {
+      this.logger.debug("invalid event-poll request:No arguments");
+      return {
+        name: "",
+        options: [],
+      };
     }
 
-    const name = args[0].name;
-    const subcmd = this.cache.get(name);
-    if (!subcmd) {
-      const err = new Deno.errors.NotSupported(
-        "invalid event-poll request:unsupported sub command",
-      );
-      return Promise.reject(err);
-    }
-
-    // parse rest of options for sub command.
-    // FIXME: need to be improved for more dedicated logic
-    const subArgs: SubCommandArgument[] = [];
-    const restOfOptions = args[0].options;
-    if (Array.isArray(restOfOptions)) {
-      for (const opt of restOfOptions) {
-        subArgs.push({
-          name: opt.name,
-          type: opt.type,
-          value: opt.value,
-        });
-      }
-    }
-
-    await subcmd.execute(bot, interaction, subArgs);
-
-    return Promise.resolve();
+    return {
+      name: args[0].name as string,
+      options: (args[0].options) ? args[0].options : [],
+    };
   }
 }
 
-const createEventPollCommand = (logger: Loggable): Command => {
-  return new EventPollCommand(logger);
+const createEventPollCommand = (bot: Bot, logger: Loggable): Command => {
+  return new EventPollCommand(bot, logger);
 };
 
 export { createEventPollCommand };
